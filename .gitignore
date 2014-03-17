@@ -1,0 +1,6 @@
+conf.py
+*.db
+README.html
+*.pyc
+*.swp
+*~
