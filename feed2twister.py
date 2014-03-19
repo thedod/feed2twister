@@ -2,22 +2,6 @@ from conf import *
 import feedparser,anydbm,sys
 from bitcoinrpc.authproxy import AuthServiceProxy
 
-### truncated_utf8() is based on http://stackoverflow.com/a/13738452
-def _is_utf8_lead_byte(b):
-    '''A UTF-8 intermediate byte starts with the bits 10xxxxxx.'''
-    return (ord(b) & 0xC0) != 0x80
-
-def truncated_utf8(text,max_bytes,ellipsis='\xe2\x80\xa6'):
-    '''If text[max_bytes] is not a lead byte, back up until a lead byte is
-    found and truncate before that character.'''
-    utf8 = text.encode('utf8')
-    if len(utf8) <= max_bytes:
-        return utf8
-    i = max_bytes-len(ellipsis)
-    while i > 0 and not _is_utf8_lead_byte(utf8[i]):
-        i -= 1
-    return utf8[:i]+ellipsis
-
 def get_next_k(twister,username):
     try:
         return twister.getposts(1,[{'username':username}])[0]['userpost']['k']+1
@@ -38,19 +22,20 @@ def main(max_items):
             else: # format as a <=140 character string
                 if len(e.link)<=MAX_URL_LENGTH:
                     msg = u'{0} {1}'.format(e.link,e.title)
+                    if len(msg)>140: # Truncate (and hope it's still meaningful)
+                        msg = msg[:137]+u'...'
                 else: # Link too long. Not enough space left for text :(
                     msg = ''
-                utfmsg = truncated_utf8(msg,140)
-                db[eid] = utfmsg
-                if not utfmsg: # We've marked it as "posted", but no sense in really posting it.
+                db[eid] = msg.encode('utf8') # Anydbm can't do unicode. utf8 may become >140, but it doesn't matter ;)
+                if not msg: # We've marked it as "posted", but no sense really posting it.
                     logging.warn(u'Link too long at {0}'.format(eid))
                     continue
                 if n_items>=max_items: # Avoid accidental flooding
-                    logging.warn('Skipping "over quota" item: {0}'.format(utfmsg)) # NOT unicode
+                    logging.warn(u'Skipping "over quota" item: {0}'.format(msg))
                     continue
-                logging.info('posting {0}'.format(utfmsg)) # NOT unicode
+                logging.info(u'posting {0}'.format(msg))
                 try:
-                    twister.newpostmsg(USERNAME,get_next_k(twister,USERNAME),utfmsg)
+                    twister.newpostmsg(USERNAME,get_next_k(twister,USERNAME),msg)
                 except Exception,e: # To do: find out why some unicode chars screw this and how to do this "right"
                     logging.error(`e`)
                 n_items+=1
