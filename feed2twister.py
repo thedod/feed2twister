@@ -36,8 +36,8 @@ def main(max_items):
                 logging.info(u'posting {0}'.format(msg))
                 try:
                     twister.newpostmsg(USERNAME,get_next_k(twister,USERNAME),msg)
-                except Exception,e:
-                    logging.error(e)
+                except Exception,e: # To do: find out why some unicode chars screw this and how to do this "right"
+                    logging.error(`e`)
                 n_items+=1
 
 if __name__=='__main__':
