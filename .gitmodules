@@ -1,0 +1,3 @@
+[submodule "dependencies/python-bitcoinrpc"]
+	path = dependencies/python-bitcoinrpc
+	url = https://github.com/thedod/python-bitcoinrpc.git

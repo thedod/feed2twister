@@ -2,6 +2,22 @@ from conf import *
 import feedparser,anydbm,sys
 from bitcoinrpc.authproxy import AuthServiceProxy
 
+### truncated_utf8() is based on http://stackoverflow.com/a/13738452
+def _is_utf8_lead_byte(b):
+    '''A UTF-8 intermediate byte starts with the bits 10xxxxxx.'''
+    return (ord(b) & 0xC0) != 0x80
+
+def truncated_utf8(text,max_bytes,ellipsis='\xe2\x80\xa6'):
+    '''If text[max_bytes] is not a lead byte, back up until a lead byte is
+    found and truncate before that character.'''
+    utf8 = text.encode('utf8')
+    if len(utf8) <= max_bytes:
+        return utf8
+    i = max_bytes-len(ellipsis)
+    while i > 0 and not _is_utf8_lead_byte(utf8[i]):
+        i -= 1
+    return utf8[:i]+ellipsis
+
 def get_next_k(twister,username):
     try:
         return twister.getposts(1,[{'username':username}])[0]['userpost']['k']+1
@@ -26,7 +42,9 @@ def main(max_items):
                         msg = msg[:137]+u'...'
                 else: # Link too long. Not enough space left for text :(
                     msg = ''
-                db[eid] = msg.encode('utf8') # Anydbm can't do unicode. utf8 may become >140, but it doesn't matter ;)
+                utfmsg = truncated_utf8(msg,140)# limit is 140 utf-8 bytes (not chars)
+                msg = unicode(utfmsg,'utf-8') # AuthServiceProxy needs unicode [we just needed to know where to truncate, and that's utf-8]
+                db[eid] = utfmsg # anydbm, on the other hand, can't handle unicode, so it's a good thing we've also kept the utf-8 :)
                 if not msg: # We've marked it as "posted", but no sense really posting it.
                     logging.warn(u'Link too long at {0}'.format(eid))
                     continue
@@ -36,8 +54,8 @@ def main(max_items):
                 logging.info(u'posting {0}'.format(msg))
                 try:
                     twister.newpostmsg(USERNAME,get_next_k(twister,USERNAME),msg)
-                except Exception,e: # To do: find out why some unicode chars screw this and how to do this "right"
-                    logging.error(`e`)
+                except Exception,e:
+                    logging.error(`e`) # usually not very informative :(
                 n_items+=1
 
 if __name__=='__main__':

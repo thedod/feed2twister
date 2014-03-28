@@ -8,11 +8,17 @@ Feed2twister is a simple script to post items from RSS/ATOM feeds to [Twister](h
 
 ### Installing
 
-Copy `config-example.py` to `config.py` and edit it to taste.
+ * run `git submodule update --init`
+   (to install a [patched version](https://github.com/thedod/python-bitcoinrpc/tree/unicode-fix-for-twister)
+   of bitcoin-rpc (a twister-related unicode fix).
+   If you don't have git(?) you can [download the zip](https://github.com/thedod/python-bitcoinrpc/archive/unicode-fix-for-twister.zip),
+   and copy the bitcoinrpc directory into this directory (overwrite whatever you have ther now. probably an empty folder).
+
+ * Copy `config-example.py` to `config.py` and edit it to taste.
 
 ### Running
 
-Normally, you would run this as a cron task: `python feed2twister.py` [`N`]
+Normally, you would run this as a cron task: `cd /path/to/this ; python feed2twister.py` [`N`]
 
 if [optional] `N` is supplied, it's used as the maximum items to post (per feed). Default is `conf.MAX_NEW_ITEMS_PER_FEED`.
 
