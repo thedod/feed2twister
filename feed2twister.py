@@ -3,7 +3,10 @@ import feedparser,anydbm,sys
 from bitcoinrpc.authproxy import AuthServiceProxy
 
 if USE_SHORTENER:
-    import gdshortener
+    try:
+        import gdshortener
+    except ImportError:
+        USE_SHORTENER = False
 
 ### truncated_utf8() is based on http://stackoverflow.com/a/13738452
 def _is_utf8_lead_byte(b):
@@ -29,8 +32,6 @@ def get_next_k(twister,username):
 
 def main(max_items):
     db = anydbm.open(DB_FILENAME,'c')
-    if USE_SHORTENER:
-        s = gdshortener.ISGDShortener()
     twister = AuthServiceProxy(RPC_URL)
     for feed_url in FEEDS:
         logging.info(feed_url)
@@ -42,8 +43,7 @@ def main(max_items):
                 logging.debug('Skipping duplicate {0}'.format(eid))
             else: # format as a <=140 character string
                 # Construct the link, possibly with shortener
-                entry_url = s.shorten(e.link)[0] if USE_SHORTENER else e.link
-
+                entry_url = gdshortener.ISGDShortener().shorten(url=e.link, log_stat=SHORTENER_STATS)[0] if USE_SHORTENER else e.link
                 if len(entry_url)<=MAX_URL_LENGTH:
                     msg = u'{0} {1}'.format(entry_url,e.title)
                     if len(msg)>140: # Truncate (and hope it's still meaningful)
