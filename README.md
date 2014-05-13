@@ -5,6 +5,7 @@ Feed2twister is a simple script to post items from RSS/ATOM feeds to [Twister](h
 * [Twister](http://twister.net.co/) (of course)
 * [python-bitcoinrpc](https://pypi.python.org/pypi/python-bitcoinrpc/)
 * [feedparser](https://pypi.python.org/pypi/feedparser/)
+* [gdshortener](https://github.com/torre76/gd_shortener/) (optional)
 
 ### Installing
 
