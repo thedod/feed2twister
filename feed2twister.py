@@ -19,19 +19,19 @@ else:
 main_config = main_config_file.defaults()
 
 def get_bool_conf_option(option):
-    if main_config[option]:
+    if option in main_config and main_config[option]:
         v = main_config[option]
         return str(v).lower() in ('yes', 'true', 't', '1')
     return False
 
 def get_array_conf_option(option):
-    if main_config[option]:
+    if option in main_config and main_config[option]:
         return main_config[option].split("\n")
     return []
 
 import logging
 log_level = logging.ERROR
-if main_config['logging_level']:
+if 'logging_level' in main_config and main_config['logging_level']:
     log_level = main_config['logging_level']
     log_level = getattr(logging, log_level.upper())
 
@@ -82,17 +82,26 @@ def main(max_items):
                 logging.debug('Skipping duplicate {0}'.format(eid))
 
             else: # format as a <=140 character string
-                # Construct the link, possibly with shortener
-                entry_url = gdshortener.ISGDShortener().shorten(url=e.link, log_stat=get_bool_conf_option('shortener_stats'))[0] if get_bool_conf_option('use_shortener') else e.link
+                if not get_bool_conf_option('do_not_include_link'):
+                    # Construct the link, possibly with shortener
+                    entry_url = gdshortener.ISGDShortener().shorten(url=e.link, log_stat=get_bool_conf_option('shortener_stats'))[0] if get_bool_conf_option('use_shortener') else e.link
 
-                if len(entry_url) <= int(main_config['max_url_length']):
-                    msg = u'{0} {1}'.format(entry_url,e.title)
+                    if len(entry_url) <= int(main_config['max_url_length']):
+                        msg = u'{0} {1}'.format(entry_url,e.title)
 
-                    if len(msg)>140: # Truncate (and hope it's still meaningful)
-                        msg = msg[:137]+u'...'
+                    else: # Link too long. Not enough space left for text :(
+                        msg = ''
 
-                else: # Link too long. Not enough space left for text :(
-                    msg = ''
+                else:
+                    entry_title = e.title
+                    if 'skip_first_title_char' in main_config and main_config['skip_first_title_char']:
+                        entry_title = entry_title[int(main_config['skip_first_title_char']):]
+
+                    msg = u'{0}'.format(entry_title)
+
+
+                if len(msg)>140: # Truncate (and hope it's still meaningful)
+                    msg = msg[:137]+u'...'
 
 
                 utfmsg = truncated_utf8(msg,140)# limit is 140 utf-8 bytes (not chars)
@@ -123,7 +132,7 @@ def main(max_items):
 if __name__=='__main__':
     if args.maxitems != None:
         n = args.maxitems
-    elif main_config['max_new_items_per_feed']:
+    elif 'max_new_items_per_feed' in main_config and main_config['max_new_items_per_feed']:
         n = int(main_config['max_new_items_per_feed'])
     else:
         n = 0
