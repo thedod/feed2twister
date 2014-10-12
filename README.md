@@ -15,7 +15,7 @@ Feed2twister is a simple script to post items from RSS/ATOM feeds to [Twister](h
    If you don't have git(?) you can [download the zip](https://github.com/thedod/python-bitcoinrpc/archive/unicode-fix-for-twister.zip),
    and copy the bitcoinrpc directory into this directory (overwrite whatever you have ther now. probably an empty folder).
 
- * Copy `config-example.py` to `config.py` and edit it to taste.
+ * Copy `conf-example.py` to `conf.py` and edit it to taste.
 
 ### Running
 
@@ -27,4 +27,3 @@ If there are more than `N` new items in a feed, "over quota" items get marked as
 (this can be handy when you add a new feed with a long history).
 
 Specifically, `python feed2twister.py 0` would make all feeds "catch up" without posting anything.
-
