@@ -121,7 +121,7 @@ def main(max_items):
 
 
 if __name__=='__main__':
-    if args.maxitems:
+    if args.maxitems != None:
         n = args.maxitems
     elif main_config['max_new_items_per_feed']:
         n = int(main_config['max_new_items_per_feed'])
