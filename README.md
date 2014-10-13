@@ -2,6 +2,7 @@ Feed2twister is a simple script to post items from RSS/ATOM feeds to [Twister](h
 
 ### Prerequisites
 
+* Python 2
 * [Twister](http://twister.net.co/) (of course)
 * [python-bitcoinrpc](https://pypi.python.org/pypi/python-bitcoinrpc/)
 * [feedparser](https://pypi.python.org/pypi/feedparser/)
@@ -19,7 +20,7 @@ Feed2twister is a simple script to post items from RSS/ATOM feeds to [Twister](h
 
 ### Running
 
-Normally, you would run this as a cron task: `cd /path/to/this ; python feed2twister.py` [`-n N`] [`-c CONFIGFILE`]
+Normally, you would run this as a cron task: `/path/to/this/feed2twister.py [N] [-c CONFIGFILE]`
 
 if [optional] `N` is supplied, it's used as the maximum items to post (per feed). Default is `0`.
 
@@ -28,4 +29,4 @@ If there are more than `N` new items in a feed, "over quota" items get marked as
 
 Specifically, `python feed2twister.py 0` would make all feeds "catch up" without posting anything.
 
-if [optional] `CONFIGFILE` is supplied, it is used as a custom config file, instead of the first file found in the following list: ./feed2twister.conf, ~/.config/feed2twister.conf, ~/.feed2twister.conf
+if [optional] `CONFIGFILE` is supplied, it is used as a custom config file, instead of the first file found in the following list: `./feed2twister.conf`, `~/.config/feed2twister.conf`, `~/.feed2twister.conf`

@@ -4,7 +4,7 @@ username = MYTWISTERUSERNAME
 # change to rpcuser and rpcpassword from ~/.twister/twister.conf
 rpc_url = http://MYRPCUSER:MYRPCPASSWORD@127.0.0.1:28332
 # db is mainly there to keep track of "what not to post again" :) (debugging too, I guess)
-db_filename = items.db
+db_filename = ~/.feed2twister.db
 # this leaves 36 characters and a ... to get to 140. If we don't have that, we skip the item :(
 max_url_length = 100
 # Use your own feeds, of course :)

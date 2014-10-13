@@ -1,3 +1,6 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
 import os,feedparser,anydbm,argparse,ConfigParser
 from bitcoinrpc.authproxy import AuthServiceProxy
 
@@ -5,7 +8,7 @@ SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 arg_parser = argparse.ArgumentParser(description='Feed2twister is a simple script to post items from RSS/ATOM feeds to Twister.')
 arg_parser.add_argument('--config', '-c', help='Alternate config file. Default is {0}.'.format(os.path.join(SCRIPT_PATH, 'feed2twister.conf')))
-arg_parser.add_argument('--maxitems', '-n', type=int, metavar='N',
+arg_parser.add_argument('maxitems', metavar='N', type=int, nargs='?', default=None,
                         help="""Maximum items to post (per feed). Default is 0.
 If there are more than N new items in a feed, "over quota" items get marked as if they were posted (this can be handy when you add a new feed with a long history). Specifically, %(prog)s 0 would make all feeds "catch up" without posting anything.""")
 args = arg_parser.parse_args()
@@ -67,7 +70,7 @@ def get_next_k(twister,username):
         return 0
 
 def main(max_items):
-    db = anydbm.open(main_config['db_filename'],'c')
+    db = anydbm.open(os.path.expanduser(main_config['db_filename']),'c')
     twister = AuthServiceProxy(main_config['rpc_url'])
 
     for feed_url in get_array_conf_option('feeds'):
