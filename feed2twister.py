@@ -111,7 +111,6 @@ def main(max_items):
 
                 utfmsg = truncated_utf8(msg,140)# limit is 140 utf-8 bytes (not chars)
                 msg = unicode(utfmsg,'utf-8') # AuthServiceProxy needs unicode [we just needed to know where to truncate, and that's utf-8]
-                db[eid] = utfmsg # anydbm, on the other hand, can't handle unicode, so it's a good thing we've also kept the utf-8 :)
                 if not msg: # We've marked it as "posted", but no sense really posting it.
                     logging.warn(u'Link too long at {0}'.format(eid))
                     continue
@@ -123,11 +122,10 @@ def main(max_items):
                 logging.info(u'posting {0}'.format(msg))
 
                 try:
-                    twister.newpostmsg(main_config['username'],
-                                       get_next_k(twister,
-                                                  main_config['username']),
-                                       msg)
-                except Exception,e:
+                    next_k = get_next_k(twister, main_config['username'])
+                    twister.newpostmsg(main_config['username'], next_k, msg)
+                    db[eid] = utfmsg # anydbm can't handle unicode, so it's a good thing we've also kept the utf-8 :)
+                except Exception, e:
                     logging.error(`e`) # usually not very informative :(
 
                 n_items+=1
