@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os,feedparser,anydbm,argparse,ConfigParser
+import sys
 from bitcoinrpc.authproxy import AuthServiceProxy
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -42,12 +43,28 @@ if 'logging_level' in main_config and main_config['logging_level']:
 
 logging.basicConfig(level=log_level)
 
-if get_bool_conf_option('use_shortener'):
-    try:
-        import gdshortener
-    except ImportError:
-        USE_SHORTENER = False
+# region shorteners
+if 'use_shortener' not in main_config or not main_config['use_shortener']:
+    shorten = lambda url: url
 
+shortener = str(main_config['use_shortener']).lower()
+
+# is.gd is the default
+if shortener in ['isgd', 'is.gd', 'gd', 'true', 'yes', 't', '1']:
+    import gdshortener
+    shorten = \
+        lambda url: gdshortener.ISGDShortener().shorten(url=url, log_stat=get_bool_conf_option('shortener_stats'))[0]
+elif shortener in ['v', 'vgd', 'v.gd']:
+    import gdshortener
+    shorten = \
+        lambda url: gdshortener.VGDShortener().shorten(url=url, log_stat=get_bool_conf_option('shortener_stats'))[0]
+elif shortener in ['ur1', 'ur1.ca', 'ur1ca']:
+    import ur1
+    shorten = lambda url: ur1.shorten(url)
+else:
+    logging.error('Invalid configuration for "shortener"!')
+    sys.exit(10)
+# endregion
 
 ### truncated_utf8() is based on http://stackoverflow.com/a/13738452
 def _is_utf8_lead_byte(b):
@@ -89,7 +106,7 @@ def main(max_items):
             else: # format as a <=140 character string
                 if not get_bool_conf_option('do_not_include_link'):
                     # Construct the link, possibly with shortener
-                    entry_url = gdshortener.ISGDShortener().shorten(url=e.link, log_stat=get_bool_conf_option('shortener_stats'))[0] if get_bool_conf_option('use_shortener') else e.link
+                    entry_url = str(shorten(e.link))
 
                     if len(entry_url) <= int(main_config['max_url_length']):
                         msg = u'{0} {1}'.format(entry_url,e.title)
