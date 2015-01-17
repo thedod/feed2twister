@@ -80,7 +80,7 @@ def main(max_items):
         feed = feedparser.parse(feed_url)
         n_items = 0
 
-        for e in feed.entries:
+        for i, e in enumerate(feed.entries):
             eid = '{0}|{1}'.format(feed_url,e.id)
 
             if db.has_key(eid) and not args.repost_existing:  # been there, done that (or not - for a reason)
@@ -130,6 +130,11 @@ def main(max_items):
 
                 n_items+=1
 
+                if n_items >= max_items:
+                    logging.warn(u'Quota reached. Skipping {0} items:'.format(len(feed.entries[i+1:])))
+                    for ee in feed.entries[i+1:]:
+                        logging.warn(u'    {0}|{1}'.format(feed_url, ee.id))
+                    break
 
 
 if __name__=='__main__':
