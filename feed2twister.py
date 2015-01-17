@@ -8,6 +8,8 @@ SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 arg_parser = argparse.ArgumentParser(description='Feed2twister is a simple script to post items from RSS/ATOM feeds to Twister.')
 arg_parser.add_argument('--config', '-c', help='Alternate config file. Default is {0}.'.format(os.path.join(SCRIPT_PATH, 'feed2twister.conf')))
+arg_parser.add_argument('--repost-existing', '-f', action='store_true',
+                        help='For debugging purposes. reposts items even if they are marked as already posted. Use with care.')
 arg_parser.add_argument('maxitems', metavar='N', type=int, nargs='?', default=None,
                         help="""Maximum items to post (per feed). Default is 0.
 If there are more than N new items in a feed, "over quota" items get marked as if they were posted (this can be handy when you add a new feed with a long history). Specifically, %(prog)s 0 would make all feeds "catch up" without posting anything.""")
@@ -81,7 +83,7 @@ def main(max_items):
         for e in feed.entries:
             eid = '{0}|{1}'.format(feed_url,e.id)
 
-            if db.has_key(eid): # been there, done that (or not - for a reason)
+            if db.has_key(eid) and not args.repost_existing:  # been there, done that (or not - for a reason)
                 logging.debug('Skipping duplicate {0}'.format(eid))
 
             else: # format as a <=140 character string
