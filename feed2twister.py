@@ -43,14 +43,11 @@ if 'logging_level' in main_config and main_config['logging_level']:
 
 logging.basicConfig(level=log_level)
 
-# region shorteners
-if 'use_shortener' not in main_config or not main_config['use_shortener']:
-    shorten = lambda url: url
+# url shorteners
+shortener = str(main_config.get('use_shortener', 'false')).lower()
 
-shortener = str(main_config['use_shortener']).lower()
-
-# is.gd is the default
-if shortener in ['isgd', 'is.gd', 'gd', 'true', 'yes', 't', '1']:
+# is.gd is the default (for historical reasons, but they're tor-user hostile :( )
+if shortener in ['isgd', 'is.gd', 'gd', 'true', 'yes', 'y', '1']:
     import gdshortener
     shorten = \
         lambda url: gdshortener.ISGDShortener().shorten(url=url, log_stat=get_bool_conf_option('shortener_stats'))[0]
@@ -61,8 +58,10 @@ elif shortener in ['v', 'vgd', 'v.gd']:
 elif shortener in ['ur1', 'ur1.ca', 'ur1ca']:
     import ur1
     shorten = lambda url: ur1.shorten(url)
+elif shortener in ['false', 'no', 'n', '0']:
+    shorten = lambda url: url
 else:
-    logging.error('Invalid configuration for "shortener"!')
+    logging.error('Invalid configuration for "use_shortener"!')
     sys.exit(10)
 # endregion
 

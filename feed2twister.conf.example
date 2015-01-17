@@ -20,7 +20,13 @@ feeds = https://swatwt.com/favs/rss/en
 logging_level = debug
 # we don't want to flood more than that in a single run.
 max_new_items_per_feed = 3
-# to enable this, you need gdshortener: https://github.com/torre76/gd_shortener/
+# use_shortener (case insensitive):
+# * False [default] - no shortener
+# * Is.gd [or True (for backward-compatibility)] -- Dependencies:
+#   * https://github.com/torre76/gd_shortener
+# * Ur1.ca [Less tor-hostile] -- Dependencies:
+#   * https://github.com/legoktm/ur1
+#   * https://github.com/MiCHiLU/python-functools32
 use_shortener = False
 # tell is.gd to publicly show statistics for the shortened url
 shortener_stats = True

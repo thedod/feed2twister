@@ -15,7 +15,7 @@ edit it so that it contains similar settings to those you had at `conf.py`
 * [Twister](http://twister.net.co/) (of course)
 * [python-bitcoinrpc](https://pypi.python.org/pypi/python-bitcoinrpc/)
 * [feedparser](https://pypi.python.org/pypi/feedparser/)
-* [gdshortener](https://github.com/torre76/gd_shortener/) (optional)
+* URL shortener dependencies (see `use_shortener` at `feedparser.conf.example`)
 
 ### Installing
 
