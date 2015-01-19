@@ -51,6 +51,14 @@ file, instead of the first file found in the following list:
 `./feed2twister.conf`, `~/.config/feed2twister.conf`,
 `~/.feed2twister.conf`
 
+### User defined URL shortener
+
+There is now an option to use your own URL shortener by defining
+`use_shortener = user_shortener` at `feed2twister.conf`.
+
+If you're looking for ideas,
+the shortener I use is [here](https://github.com/thedod/private_url_shortener#readme).
+
 
 ### Hidden configuration
 
