@@ -27,6 +27,9 @@ max_new_items_per_feed = 3
 # * Ur1.ca [Less tor-hostile] -- Dependencies:
 #   * https://github.com/legoktm/ur1
 #   * https://github.com/MiCHiLU/python-functools32
+# * user_shortener -- roll your own
+#   * write a user_shortener.py file with a shorten(long_url)
+#     that returns a short url. May the source be with you.
 use_shortener = False
 # tell is.gd to publicly show statistics for the shortened url
 shortener_stats = True

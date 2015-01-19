@@ -58,6 +58,8 @@ elif shortener in ['v', 'vgd', 'v.gd']:
 elif shortener in ['ur1', 'ur1.ca', 'ur1ca']:
     import ur1
     shorten = lambda url: ur1.shorten(url)
+elif shortener in ['user_shortener', 'user']:
+    from user_shortener import shorten  # User should create user_shortener.py
 elif shortener in ['false', 'no', 'n', '0']:
     shorten = lambda url: url
 else:

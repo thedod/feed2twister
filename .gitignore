@@ -5,3 +5,4 @@ README.html
 *.swp
 *~
 *.conf
+user_shortener.py
