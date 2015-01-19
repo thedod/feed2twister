@@ -133,9 +133,6 @@ def main(max_items):
                     logging.warn(u'Link too long at {0}'.format(eid))
                     continue
 
-                if n_items >= max_items: # Avoid accidental flooding
-                    logging.warn(u'Skipping "over quota" item: {0}'.format(msg))
-                    continue
 
                 logging.info(u'posting {0}'.format(msg))
 
@@ -151,7 +148,15 @@ def main(max_items):
                 if n_items >= max_items:
                     logging.warn(u'Quota reached. Skipping {0} items:'.format(len(feed.entries[i+1:])))
                     for ee in feed.entries[i+1:]:
+                        eeid = '{0}|{1}'.format(feed_url, ee.id)
                         logging.warn(u'    {0}|{1}'.format(feed_url, ee.id))
+                        # already saved this item to db anyways, so we're done here
+                        if eeid in db.keys():
+                            continue
+                        # this is a *new* message we're skipping. build some fake post message in case
+                        # we want to have a look at the database for debugging or such
+                        utf8msg = truncated_utf8(u'Skipped: {0}'.format(e.title), 140)
+                        db[eeid] = utf8msg
                     break
 
 
