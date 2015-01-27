@@ -98,10 +98,13 @@ def main(max_items):
         feed = feedparser.parse(feed_url)
         n_items = 0
 
+        # store posts for later since we want to post them in chronological order
+        msgs = []
+
         for i, e in enumerate(feed.entries):
             eid = '{0}|{1}'.format(feed_url,e.id)
 
-            if db.has_key(eid) and not args.repost_existing:  # been there, done that (or not - for a reason)
+            if eid in db.keys() and not args.repost_existing:  # been there, done that (or not - for a reason)
                 logging.debug('Skipping duplicate {0}'.format(eid))
 
             else: # format as a <=140 character string
@@ -133,26 +136,38 @@ def main(max_items):
                     logging.warn(u'Link too long at {0}'.format(eid))
                     continue
 
-                if n_items >= max_items: # Avoid accidental flooding
-                    logging.warn(u'Skipping "over quota" item: {0}'.format(msg))
-                    continue
-
-                logging.info(u'posting {0}'.format(msg))
-
-                try:
-                    next_k = get_next_k(twister, main_config['username'])
-                    twister.newpostmsg(main_config['username'], next_k, msg)
-                    db[eid] = utfmsg # anydbm can't handle unicode, so it's a good thing we've also kept the utf-8 :)
-                except Exception, e:
-                    logging.error(`e`) # usually not very informative :(
+                logging.info(u'will post {0}'.format(msg))
+                msgs.append((eid, msg, utfmsg))
 
                 n_items+=1
 
                 if n_items >= max_items:
                     logging.warn(u'Quota reached. Skipping {0} items:'.format(len(feed.entries[i+1:])))
+
                     for ee in feed.entries[i+1:]:
+                        eeid = '{0}|{1}'.format(feed_url, ee.id)
                         logging.warn(u'    {0}|{1}'.format(feed_url, ee.id))
+                        # already saved this item to db anyways, so we're done here
+                        if eeid in db.keys():
+                            continue
+                        # this is a *new* message we're skipping. build some fake post message in case
+                        # we want to have a look at the database for debugging or such
+                        utf8msg = truncated_utf8(u'Skipped: {0}'.format(e.title), 140)
+                        db[eeid] = utf8msg
                     break
+
+        # done parsing this feed, now post what we found, but in chronological order
+        msgs.reverse()
+        for (eid, msg, utfmsg) in msgs:
+            try:
+                logging.info(u'now posting {0}'.format(msg))
+                next_k = get_next_k(twister, main_config['username'])
+                twister.newpostmsg(main_config['username'], next_k, msg)
+                db[eid] = utfmsg # anydbm can't handle unicode, so it's a good thing we've also kept the utf-8 :)
+            except Exception, e:
+                logging.error(repr(e))  # usually not very informative :(
+                if e.error:
+                    logging.error(e.error)
 
 
 if __name__=='__main__':
