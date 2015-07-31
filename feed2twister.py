@@ -102,7 +102,7 @@ def main(max_items):
         msgs = []
 
         for i, e in enumerate(feed.entries):
-            eid = '{0}|{1}'.format(feed_url,e.id)
+            eid = '{0}|{1}'.format(feed_url,e.get('id','???'))
 
             if eid in db.keys() and not args.repost_existing:  # been there, done that (or not - for a reason)
                 logging.debug('Skipping duplicate {0}'.format(eid))
@@ -166,8 +166,11 @@ def main(max_items):
                 db[eid] = utfmsg # anydbm can't handle unicode, so it's a good thing we've also kept the utf-8 :)
             except Exception, e:
                 logging.error(repr(e))  # usually not very informative :(
-                if e.error:
-                    logging.error(e.error)
+                try: # temporary patch
+                    if e.error:
+                        logging.error(e.error)
+                except Exception,e:
+                    logging.error('error loggin borked %s',repr(e))  # usually not very informative :(
 
 
 if __name__=='__main__':
