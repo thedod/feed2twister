@@ -145,8 +145,8 @@ def main(max_items):
                     logging.warn(u'Quota reached. Skipping {0} items:'.format(len(feed.entries[i+1:])))
 
                     for ee in feed.entries[i+1:]:
-                        eeid = '{0}|{1}'.format(feed_url, ee.id)
-                        logging.warn(u'    {0}|{1}'.format(feed_url, ee.id))
+                        eeid = '{0}|{1}'.format(feed_url, ee.get('id','???'))
+                        logging.warn(u'    {0}'.format(eeid))
                         # already saved this item to db anyways, so we're done here
                         if eeid in db.keys():
                             continue
